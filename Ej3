@@ -1,12 +1,12 @@
 --Corrige la tabla de empleados para que haya un solo gerente general segun los criterios del enunciado (maximo sueldo, y si hay iguales, por antiguedad)
 
 CREATE PROCEDURE Ej3
-
+@empleados_sin_jefe integer OUTPUT
 
 
 AS
 BEGIN
-DECLARE @empleados_sin_jefe integer
+
 
 SELECT @empleados_sin_jefe = COUNT(*) FROM Empleado WHERE empl_jefe is null
 
@@ -35,6 +35,6 @@ if @empleados_sin_jefe > 1
 	
 
 
-	return @empleados_sin_jefe
+
 
 END
