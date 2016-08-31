@@ -52,12 +52,15 @@ having SUM(S.stoc_cantidad) > (SELECT SUM(stoc_cantidad) FROM STOCK JOIN Product
 							 prod_codigo = stoc_producto
 								JOIN DEPOSITO on depo_codigo = '00' and depo_codigo = stoc_deposito)
 								
-								
-SELECT rubr_id, rubr_detalle, COUNT(*) AS cantidad
-	FROM Rubro, Producto, STOCK
-	WHERE rubr_id = prod_rubro AND stoc_producto = prod_codigo -- AND SUM(stoc_cantidad) > 10
-	GROUP BY rubr_id, rubr_detalle
-	HAVING COUNT(*) > (SELECT COUNT(*) FROM STOCK WHERE stoc_producto = '00000000' AND stoc_deposito = '00') 													 
+--7)
+SELECT  P.prod_codigo, P.prod_detalle, MIN(ITF.item_precio) AS Minimo, MAX(ITF.item_precio) AS Maximo,
+		((MAX(ITF.item_precio) - MIN(ITF.item_precio))*100 / MIN(ITF.item_precio) ) AS 'Porcentaje de dif'
+  From Producto  P JOIN Item_Factura ITF on P.prod_codigo = ITF.item_producto
+  
+  group by P.prod_codigo, P.prod_detalle
+  having EXISTS(SELECT 1 FROM STOCK where stoc_producto = P.prod_codigo and stoc_cantidad >0)
+  
+ 	 
 					 
 				
 				
