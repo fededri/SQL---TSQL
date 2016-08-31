@@ -32,17 +32,32 @@ from Producto P LEFT JOIN Composicion Co ON prod_codigo = Co.comp_producto JOIN 
 	having AVG(st.stoc_cantidad)>100
 
 
---5)
+--5)							
 SELECT prod_codigo, prod_detalle,   SUM(item_cantidad) AS Egresos 
-FROM Producto, Item_Factura, Factura
-where prod_codigo  = item_producto and fact_numero = item_numero and
-		fact_tipo = item_tipo and fact_sucursal = item_sucursal and
-		YEAR(fact_fecha) = 2012
+FROM Producto P JOIN  Item_Factura ITF on P.prod_codigo = ITF.item_producto JOIN Factura F on
+	F.fact_numero = ITF.item_numero and YEAR(F.fact_fecha) = 2012		
 group by prod_codigo, prod_detalle
 having SUM(item_cantidad) > (SELECT SUM(item_cantidad) FROM Item_Factura, Factura where
-								item_producto = prod_codigo and
+								item_producto = P.prod_codigo and
 								item_numero = fact_numero and item_tipo = fact_tipo and
-								fact_sucursal = item_sucursal and YEAR(fact_fecha) = 2011)					 
+								fact_sucursal = item_sucursal and YEAR(fact_fecha) = 2011)
+								
+								
+--6)
+SELECT rubr_id, rubr_detalle, COUNT(P.prod_codigo) AS 'Productos del rubro', SUM(S.stoc_cantidad) AS Stock
+FROM Rubro R JOIN Producto P ON R.rubr_id = P.prod_rubro JOIN STOCK S ON S.stoc_producto = P.prod_codigo
+group by rubr_id, rubr_detalle
+having SUM(S.stoc_cantidad) > (SELECT SUM(stoc_cantidad) FROM STOCK JOIN Producto
+							 on prod_codigo = '00000000' and
+							 prod_codigo = stoc_producto
+								JOIN DEPOSITO on depo_codigo = '00' and depo_codigo = stoc_deposito)
+								
+								
+SELECT rubr_id, rubr_detalle, COUNT(*) AS cantidad
+	FROM Rubro, Producto, STOCK
+	WHERE rubr_id = prod_rubro AND stoc_producto = prod_codigo -- AND SUM(stoc_cantidad) > 10
+	GROUP BY rubr_id, rubr_detalle
+	HAVING COUNT(*) > (SELECT COUNT(*) FROM STOCK WHERE stoc_producto = '00000000' AND stoc_deposito = '00') 													 
 					 
 				
 				
