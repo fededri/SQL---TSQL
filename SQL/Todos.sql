@@ -1,4 +1,4 @@
---Ej 1 de SQL
+﻿--Ej 1 de SQL
 
 
 --1)
@@ -62,5 +62,20 @@ SELECT  P.prod_codigo, P.prod_detalle, MIN(ITF.item_precio) AS Minimo, MAX(ITF.i
   
  	 
 					 
-				
-				
+--8)
+--Mostrar para el o los artículos que tengan stock en todos los depósitos, nombre del artículo, stock del depósito que más stock tiene.
+SELECT P.prod_detalle, MAX(S.stoc_cantidad) AS Cantidad
+FROM Producto  P JOIN Stock S ON S.stoc_producto = P.prod_codigo
+group by P.prod_detalle
+order by Cantidad
+
+--9)
+--Mostrar el código del jefe, código del empleado que lo tiene como jefe, nombre del mismo y la cantidad de depósitos que ambos tienen asignados.
+select Jefe.empl_codigo AS Jefe, El.empl_codigo AS Empleado, El.empl_nombre,
+			 (SELECT COUNT(*) FROM DEPOSITO DEPO where depo.depo_encargado = Jefe.empl_codigo ) + 
+			 (SELECT COUNT(*) FROM DEPOSITO DEPO where depo.depo_encargado = El.empl_codigo ) AS 'Depositos asignados'
+FROM Empleado El JOIN Empleado Jefe ON El.empl_jefe = Jefe.empl_codigo
+
+
+
+--10)
