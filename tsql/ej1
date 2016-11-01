@@ -22,3 +22,11 @@ FROM Producto P JOIN STOCK ST ON stoc_deposito = @deposito AND stoc_producto = @
 RETURN @Estado
 
 END
+
+
+
+
+-- Devuelve los articulos y depositos cuyo stoc no alcanzo al maximo
+select  prod_codigo AS Articulo, depo_codigo  As Deposito, prod_detalle Detalle 
+FROM Producto JOIN STOCK ON stoc_producto = prod_codigo JOIN DEPOSITO ON depo_codigo = stoc_deposito 
+where stoc_stock_maximo > stoc_cantidad

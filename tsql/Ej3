@@ -38,3 +38,57 @@ if @empleados_sin_jefe > 1
 
 
 END
+
+
+
+-----Funcion que devuelve el salario maximo de empleado
+CREATE FUNCTION fx_get_max_salario()
+returns decimal(12,2)
+AS
+
+BEGIN
+DECLARE @max decimal(12,2)
+SELECT @max = MAX(empl_salario) FROM Empleado
+return @max
+END
+
+-----Stored procedure del ejercicio 3
+CREATE PROCEDURE Ej3_2
+@sin_jefes integer output
+
+AS
+
+BEGIN
+
+SELECT @sin_jefes = COUNT(*) 
+FROM Empleado where empl_jefe IS NULL
+
+if @sin_jefes > 1
+	--arreglo la base de datos
+	BEGIN
+	DECLARE @id_gerente_gral numeric(6)
+	DECLARE @cant_jefes_con_mayor_salario integer
+	SELECT @cant_jefes_con_mayor_salario = count(*) from Empleado 
+							where empl_salario = (select dbo.fx_get_max_salario()) AND empl_jefe IS NULL
+	if @cant_jefes_con_mayor_salario > 1
+		BEGIN
+		SELECT @id_gerente_gral = empl_codigo From Empleado where empl_salario = (select dbo.fx_get_max_salario())
+						 AND empl_jefe IS NULL 
+						 AND DATEDIFF(DAY,empl_ingreso, GETDATE()) = (SELECT MAX(DATEDIFF(DAY,empl_ingreso, GETDATE())) 
+																	FROM Empleado where empl_jefe IS NULL)
+		END
+	else
+		BEGIN 
+		SELECT @id_gerente_gral =  empl_codigo FROM Empleado where empl_salario = (select dbo.fx_get_max_salario()) and empl_jefe IS NULL
+		
+		UPDATE Empleado SET empl_jefe = @id_gerente_gral where empl_codigo != @id_gerente_gral AND empl_jefe IS NULL
+		END
+	END
+
+
+
+END
+
+--invocacion del SP
+DECLARE @output decimal(12,2)
+exec Ej3_2 @sin_jefes  = @output
